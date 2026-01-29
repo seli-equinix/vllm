@@ -168,6 +168,8 @@ def get_flashinfer_moe_backend() -> FlashinferMoeBackend:
         if (
             flashinfer_moe_backend == "latency"
             and not current_platform.is_device_capability_family(100)
+            # SM121 (12.x) uses CUTLASS for latency, as TRTLLM backend is B200-only
+            and not current_platform.is_device_capability_family(120)
         ):
             # TRTLLM MOE backend only supports SM100/SM103 (B100/B200),
             # NOT SM120/SM121 (GB10 DGX Spark). Fall back to CUTLASS.
@@ -177,6 +179,16 @@ def get_flashinfer_moe_backend() -> FlashinferMoeBackend:
                 scope="local",
             )
             return FlashinferMoeBackend.CUTLASS
+        
+        # Determine specific backend mapping for SM121/Blackwell Latency
+        if (
+             flashinfer_moe_backend == "latency"
+             and current_platform.is_device_capability_family(120)
+        ):
+             # SM121 uses CUTLASS as the primary backend for "latency" mode
+             # because TRTLLM kernels are not optimized/available for 12.x
+             return FlashinferMoeBackend.CUTLASS
+
         return backend_map[flashinfer_moe_backend]
     elif current_platform.is_device_capability(90):
         return FlashinferMoeBackend.CUTLASS

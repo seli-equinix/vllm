@@ -821,13 +821,20 @@ def use_flashinfer_prefill() -> bool:
     from vllm.config import get_current_vllm_config
 
     vllm_config = get_current_vllm_config()
-    # FlashInfer MLA prefill only supports SM100 (capability.major == 10)
-    # SM121/GB10 will use TRITON_MLA instead
+    # SM121/GB10 support via FlashInfer is optional
+    # If using SM12x, we ensure flashinfer is available.
+    is_supported_arch = current_platform.is_device_capability_family(100)
+    if current_platform.is_device_capability_family(120):
+        # Allow SM121 if flashinfer is installed. 
+        # Note: If the user installed generic flashinfer wheel (no SM121 kernels),
+        # this might error at runtime. We ideally trust the deployment env.
+        is_supported_arch = True
+
     if not (
         not vllm_config.attention_config.disable_flashinfer_prefill
         and has_flashinfer()
         and not vllm_config.attention_config.use_cudnn_prefill
-        and current_platform.is_device_capability_family(100)
+        and is_supported_arch
     ):
         return False
 

@@ -63,12 +63,14 @@ def _get_backend_priorities(
 
     if use_mla:
         if is_blackwell:
+            # SM121 (Major=12): Prioritize FlashInfer MLA if available, else fallback
+            # SM100 (Major=10): Prioritize FlashInfer MLA
             return [
                 AttentionBackendEnum.FLASHINFER_MLA,
-                AttentionBackendEnum.CUTLASS_MLA,
+                AttentionBackendEnum.CUTLASS_MLA,  # Safe fallback for SM121
                 AttentionBackendEnum.FLASH_ATTN_MLA,
                 AttentionBackendEnum.FLASHMLA,
-                AttentionBackendEnum.TRITON_MLA,
+                AttentionBackendEnum.TRITON_MLA,   # Original safe default for SM121
                 AttentionBackendEnum.FLASHMLA_SPARSE,
             ]
         else:
