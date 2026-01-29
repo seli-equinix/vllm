@@ -210,9 +210,9 @@ def has_flashinfer_cutlass_fused_moe() -> bool:
     # Check if all required functions are available
     required_functions = [
         ("flashinfer.fused_moe", "cutlass_fused_moe"),
-        ("flashinfer", "fp4_quantize"),
-        ("flashinfer", "nvfp4_block_scale_interleave"),
-        ("flashinfer.fused_moe", "trtllm_fp4_block_scale_moe"),
+        # ("flashinfer", "fp4_quantize"),
+        # ("flashinfer", "nvfp4_block_scale_interleave"),
+        # ("flashinfer.fused_moe", "trtllm_fp4_block_scale_moe"),
     ]
 
     for module_name, attr_name in required_functions:
